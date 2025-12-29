@@ -1,2 +1,2 @@
 # kaizen-habit-tracker
-A minimalist habit tracker with GitHub-style heat-maps, streak tracking, and local backup/restore. Built with vanilla HTML, CSS, and JavaScript.
+A lightweight habit tracking web app with GitHub-style heatmaps, streak calculations with Authentication and cloud persistence. Built using vanilla HTML, CSS, and JavaScript.
