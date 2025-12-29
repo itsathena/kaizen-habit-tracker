@@ -8,6 +8,11 @@
 <link rel="icon" type="image/png" href="favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
 </head>
 <body>
 
@@ -21,10 +26,10 @@
 
     <div class="controls-bar">
         <div class="btn-group">
+            <button id="authBtn" class="btn" onclick="toggleAuth()">Sign In with Google</button>
+            
             <button class="btn" onclick="exportData()">Backup</button>
-            <button class="btn" onclick="document.getElementById('importFile').click()">Restore</button>
-            <input type="file" id="importFile" style="display:none" onchange="importData(this)">
-        </div>
+            </div>
         <button class="btn" onclick="openModal()">+ New Habit</button>
     </div>
 
