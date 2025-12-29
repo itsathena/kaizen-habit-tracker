@@ -71,12 +71,19 @@ function initViews() {
 }
 
 
+// --- AUTH & SYNC LOGIC ---
+
 function toggleAuth() {
     if (currentUser) {
         auth.signOut();
         location.reload(); 
     } else {
         const provider = new firebase.auth.GoogleAuthProvider();
+        
+        provider.setCustomParameters({
+            prompt: 'select_account'
+        });
+
         auth.signInWithPopup(provider).catch(error => alert(error.message));
     }
 }
