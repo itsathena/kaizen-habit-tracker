@@ -16,7 +16,7 @@ if (!firebase.apps.length) {
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// --- APP STATE ---
+
 let habits = []; 
 let editingId = null;
 let deletingId = null; 
@@ -24,21 +24,31 @@ let habitViews = {};
 let calendarStates = {}; 
 let currentUser = null; 
 
+
 const tooltip = document.getElementById('globalTooltip');
 const landingView = document.getElementById('landing-view');
 const appView = document.getElementById('app-view');
 const userProfile = document.getElementById('user-profile');
 const userAvatar = document.getElementById('user-avatar');
 const userName = document.getElementById('user-name');
+const loadingScreen = document.getElementById('loading-screen');
+
+// Modal Elements
+const modal = document.getElementById('habitModal');
+const resetBtn = document.getElementById('resetBtn');
+const inputs = { 
+    name: document.getElementById('habitName'), 
+    desc: document.getElementById('habitDesc'), 
+    freq: document.getElementById('habitFreq') 
+};
 
 // SVG Icons
 const iconCalendar = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`;
 const iconGrid = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`;
 
 // --- INITIALIZATION ---
-const loadingScreen = document.getElementById('loading-screen');
-
 document.addEventListener('DOMContentLoaded', () => {
+
     auth.onAuthStateChanged(user => {
         if (user) {
             currentUser = user;
@@ -49,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showAppView();
             loadFromCloud(); 
         } else {
-            // --- LOGGED OUT ---
             currentUser = null;
             userProfile.style.display = 'none';
             
@@ -68,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (loadingScreen) {
             loadingScreen.style.opacity = '0';
-            setTimeout(() => { loadingScreen.style.display = 'none'; }, 400); 
+            setTimeout(() => { loadingScreen.style.display = 'none'; }, 400);
         }
     });
 });
@@ -76,23 +85,13 @@ document.addEventListener('DOMContentLoaded', () => {
 function showAppView() {
     landingView.style.display = 'none';
     appView.style.display = 'block';
-    appView.classList.add('fade-in');
+    appView.classList.add('fade-in'); 
 }
 
 function showLandingView() {
     appView.style.display = 'none';
     landingView.style.display = 'flex';
-    landingView.classList.add('fade-in');
-}
-
-function showAppView() {
-    landingView.style.display = 'none';
-    appView.style.display = 'block';
-}
-
-function showLandingView() {
-    landingView.style.display = 'flex';
-    appView.style.display = 'none';
+    landingView.classList.add('fade-in'); 
 }
 
 function enterGuestMode() {
@@ -117,9 +116,7 @@ function initViews() {
 
 function toggleAuth() {
     if (currentUser) {
-        auth.signOut().then(() => {
-            location.reload(); 
-        });
+        auth.signOut().then(() => location.reload());
     } else {
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
@@ -132,8 +129,7 @@ function saveData(isToggle = false) {
         db.collection('users').doc(currentUser.uid).set({
             habits: habits,
             lastUpdated: new Date()
-        })
-        .catch(err => console.error("Sync Error", err));
+        }).catch(err => console.error("Sync Error", err));
         
         renderHabits(!isToggle);
     } else {
@@ -156,7 +152,7 @@ function loadFromCloud() {
     });
 }
 
-// --- CORE HABIT FUNCTIONS ---
+// --- HABIT MANAGEMENT ---
 
 function addHabit(name, desc, freq) {
     const id = Date.now().toString();
@@ -188,6 +184,54 @@ function confirmReset() {
      if (h) { h.history = {}; saveData(); }
      closeResetModal(); closeModal(); 
 }
+
+
+function openModal() { 
+    editingId = null; 
+    inputs.name.value = ''; 
+    inputs.desc.value = ''; 
+    resetBtn.style.display = 'none'; 
+    document.getElementById('modalTitle').innerText = 'Design Routine';
+    modal.style.display = 'flex'; 
+    inputs.name.focus(); 
+}
+
+function openEdit(id) { 
+    const h = habits.find(x => x.id === id); 
+    if(h){ 
+        editingId = id; 
+        inputs.name.value = h.name; 
+        inputs.desc.value = h.desc; 
+        inputs.freq.value = h.freq; 
+        resetBtn.style.display = 'block'; 
+        document.getElementById('modalTitle').innerText = 'Refine Routine';
+        modal.style.display = 'flex'; 
+    } 
+}
+
+function closeModal() { 
+    modal.style.display = 'none'; 
+}
+
+function saveHabit() { 
+    const name = inputs.name.value.trim();
+    if(!name) return alert('Name required'); 
+    
+    if(editingId) {
+        updateHabit(editingId, name, inputs.desc.value, inputs.freq.value); 
+    } else {
+        addHabit(name, inputs.desc.value, inputs.freq.value); 
+    }
+    closeModal(); 
+}
+
+window.onclick = e => { 
+    if(e.target == modal) closeModal(); 
+    if(e.target == deleteModal) closeDeleteModal();
+    if(e.target == resetModal) closeResetModal();
+};
+
+// --- INTERACTION LOGIC ---
 
 function toggleDate(habitId, dateStr) {
     const h = habits.find(x => x.id === habitId);
@@ -390,44 +434,6 @@ function getStreak(history) {
     }
     return s;
 }
-
-const modal = document.getElementById('habitModal');
-const resetBtn = document.getElementById('resetBtn');
-const inputs = { name: document.getElementById('habitName'), desc: document.getElementById('habitDesc'), freq: document.getElementById('habitFreq') };
-
-function openModal() { 
-    editingId=null; 
-    inputs.name.value=''; inputs.desc.value=''; 
-    resetBtn.style.display = 'none'; 
-    document.getElementById('modalTitle').innerText = 'Design Routine';
-    modal.style.display='flex'; inputs.name.focus(); 
-}
-
-function openEdit(id) { 
-    const h=habits.find(x=>x.id===id); 
-    if(h){ 
-        editingId=id; 
-        inputs.name.value=h.name; inputs.desc.value=h.desc; inputs.freq.value=h.freq; 
-        resetBtn.style.display = 'block'; 
-        document.getElementById('modalTitle').innerText = 'Refine Routine';
-        modal.style.display='flex'; 
-    } 
-}
-
-function closeModal() { modal.style.display='none'; }
-
-function saveHabit() { 
-    if(!inputs.name.value.trim()) return alert('Name required'); 
-    if(editingId) updateHabit(editingId, inputs.name.value, inputs.desc.value, inputs.freq.value); 
-    else addHabit(inputs.name.value, inputs.desc.value, inputs.freq.value); 
-    closeModal(); 
-}
-
-window.onclick = e => { 
-    if(e.target == modal) closeModal(); 
-    if(e.target == deleteModal) closeDeleteModal();
-    if(e.target == resetModal) closeResetModal();
-};
 
 function exportData() {
     const a = document.createElement('a');
