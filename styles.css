@@ -30,12 +30,83 @@ body {
 
 h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 600; margin: 0; }
 
-.container { max-width: 1000px; width: 100%; }
+.container { max-width: 1000px; width: 100%; position: relative; }
 
 /* Header */
-header { text-align: center; margin-bottom: 50px; }
+header { text-align: center; margin-bottom: 50px; position: relative; }
 h1 { font-size: 3rem; letter-spacing: -1px; margin-bottom: 8px; color: var(--ink-black); }
 .subtitle { color: var(--ink-medium); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; }
+
+.user-profile {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+    gap: 5px;
+}
+
+#user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--ink-black);
+}
+
+#user-name {
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.btn-text-small {
+    background: none;
+    border: none;
+    font-size: 0.7rem;
+    color: var(--ink-medium);
+    cursor: pointer;
+    text-decoration: underline;
+}
+.btn-text-small:hover { color: var(--danger); }
+
+/* --- LANDING VIEW (SIGNED OUT) --- */
+.landing-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    animation: fadeIn 0.5s ease;
+}
+
+.landing-card {
+    background: var(--bg-card);
+    padding: 60px 40px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    border: 1px solid var(--ink-faint);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+}
+
+.landing-card h2 { font-size: 2rem; margin-bottom: 10px; }
+.landing-card p { color: var(--ink-medium); margin-bottom: 30px; font-weight: 300; }
+
+.btn-large {
+    width: 100%;
+    padding: 15px;
+    font-size: 1rem;
+    margin-bottom: 15px;
+}
+
+.divider {
+    font-size: 0.8rem;
+    color: var(--ink-light);
+    margin: 15px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 /* Controls */
 .controls-bar {
@@ -63,12 +134,11 @@ h1 { font-size: 3rem; letter-spacing: -1px; margin-bottom: 8px; color: var(--ink
 }
 .btn:hover { background: var(--ink-black); color: white; }
 .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
-
-/* Red Button */
+.btn-text { background: none; border: none; cursor: pointer; color: var(--ink-medium); text-decoration: underline; }
+.btn-text:hover { color: var(--ink-black); }
 .btn-danger { border-color: var(--danger); color: var(--danger); padding: 10px 20px;}
 .btn-danger:hover { background: var(--danger); color: white; }
 
-/* Habit Card */
 .habit-list { display: flex; flex-direction: column; gap: 40px; }
 
 .habit-card {
@@ -106,12 +176,7 @@ h1 { font-size: 3rem; letter-spacing: -1px; margin-bottom: 8px; color: var(--ink
     justify-content: center;
 }
 
-.action-icon svg {
-    width: 20px; 
-    height: 20px;
-    stroke: currentColor;
-}
-
+.action-icon svg { width: 20px; height: 20px; stroke: currentColor; }
 .action-icon:hover { color: var(--ink-black); }
 
 /* Stats */
@@ -127,7 +192,7 @@ h1 { font-size: 3rem; letter-spacing: -1px; margin-bottom: 8px; color: var(--ink
 }
 .stat-val { font-family: 'Playfair Display', serif; font-size: 1.4rem; }
 
-/* --- HEATMAP VIEW --- */
+/* --- HEATMAP --- */
 .heatmap-container {
     display: flex;
     align-items: flex-start;
@@ -287,10 +352,48 @@ input, select {
 }
 input:focus { border-bottom-color: var(--ink-black); }
 
-/* Responsive Fixes */
+/* Responsiveness */
 @media (max-width: 600px) {
     h1 { font-size: 2.2rem; }
     .habit-card { padding: 20px; }
     .habit-header { flex-direction: column; gap: 15px; }
     .action-icons { width: 100%; justify-content: flex-start; gap: 20px; }
+    .user-profile { position: static; margin-bottom: 20px; flex-direction: row; justify-content: center; }
+}
+
+/* --- LOADING SCREEN --- */
+#loading-screen {
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100vh;
+    background-color: var(--bg-paper);
+    z-index: 9999; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--ink-faint);
+    border-top: 2px solid var(--ink-black);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

@@ -1,4 +1,5 @@
-  const firebaseConfig = {
+// --- FIREBASE CONFIGURATION ---
+const firebaseConfig = {
     apiKey: "AIzaSyAIII3nb_vpsDrWA2ObYuwOE3I2XXdzQiM",
     authDomain: "kaizen-habit-tracker-36453.firebaseapp.com",
     projectId: "kaizen-habit-tracker-36453",
@@ -6,7 +7,7 @@
     messagingSenderId: "263873833982",
     appId: "1:263873833982:web:4ce4690b70bcec677baeaf",
     measurementId: "G-1YGCKZTLL8"
-  };
+};
 
 // Initialize Firebase
 if (!firebase.apps.length) {
@@ -15,7 +16,7 @@ if (!firebase.apps.length) {
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-
+// --- APP STATE ---
 let habits = []; 
 let editingId = null;
 let deletingId = null; 
@@ -24,41 +25,83 @@ let calendarStates = {};
 let currentUser = null; 
 
 const tooltip = document.getElementById('globalTooltip');
-const authBtn = document.getElementById('authBtn');
+const landingView = document.getElementById('landing-view');
+const appView = document.getElementById('app-view');
+const userProfile = document.getElementById('user-profile');
+const userAvatar = document.getElementById('user-avatar');
+const userName = document.getElementById('user-name');
 
-
+// SVG Icons
 const iconCalendar = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`;
 const iconGrid = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`;
 
 // --- INITIALIZATION ---
-document.addEventListener('DOMContentLoaded', () => {
-    const localData = JSON.parse(localStorage.getItem('kaizenHabits'));
-    if(localData) {
-        habits = localData;
-        initViews();
-        renderHabits(true); 
-    }
+const loadingScreen = document.getElementById('loading-screen');
 
+document.addEventListener('DOMContentLoaded', () => {
     auth.onAuthStateChanged(user => {
         if (user) {
             currentUser = user;
-            if(authBtn) {
-                authBtn.innerText = "Sign Out";
-                authBtn.classList.add('btn-danger'); 
-            }
+            userAvatar.src = user.photoURL || 'https://via.placeholder.com/32';
+            userName.innerText = user.displayName ? user.displayName.split(' ')[0] : 'User';
+            userProfile.style.display = 'flex';
+            
+            showAppView();
             loadFromCloud(); 
         } else {
+            // --- LOGGED OUT ---
             currentUser = null;
-            if(authBtn) {
-                authBtn.innerText = "Sign In with Google";
-                authBtn.classList.remove('btn-danger');
+            userProfile.style.display = 'none';
+            
+            const localData = JSON.parse(localStorage.getItem('kaizenHabits'));
+            
+            if(localData && localData.length > 0) {
+                habits = localData;
+                initViews();
+                renderHabits(true);
+                showAppView();
+            } else {
+                habits = [];
+                showLandingView();
             }
-            habits = JSON.parse(localStorage.getItem('kaizenHabits')) || [];
-            initViews();
-            renderHabits(true);
+        }
+        
+        if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => { loadingScreen.style.display = 'none'; }, 400); 
         }
     });
 });
+
+function showAppView() {
+    landingView.style.display = 'none';
+    appView.style.display = 'block';
+    appView.classList.add('fade-in');
+}
+
+function showLandingView() {
+    appView.style.display = 'none';
+    landingView.style.display = 'flex';
+    landingView.classList.add('fade-in');
+}
+
+function showAppView() {
+    landingView.style.display = 'none';
+    appView.style.display = 'block';
+}
+
+function showLandingView() {
+    landingView.style.display = 'flex';
+    appView.style.display = 'none';
+}
+
+function enterGuestMode() {
+    const localData = JSON.parse(localStorage.getItem('kaizenHabits'));
+    habits = localData || [];
+    initViews();
+    renderHabits(true);
+    showAppView();
+}
 
 function initViews() {
     habits.forEach(h => {
@@ -70,20 +113,16 @@ function initViews() {
     });
 }
 
-
 // --- AUTH & SYNC LOGIC ---
 
 function toggleAuth() {
     if (currentUser) {
-        auth.signOut();
-        location.reload(); 
+        auth.signOut().then(() => {
+            location.reload(); 
+        });
     } else {
         const provider = new firebase.auth.GoogleAuthProvider();
-        
-        provider.setCustomParameters({
-            prompt: 'select_account'
-        });
-
+        provider.setCustomParameters({ prompt: 'select_account' });
         auth.signInWithPopup(provider).catch(error => alert(error.message));
     }
 }
@@ -95,7 +134,7 @@ function saveData(isToggle = false) {
             lastUpdated: new Date()
         })
         .catch(err => console.error("Sync Error", err));
-
+        
         renderHabits(!isToggle);
     } else {
         localStorage.setItem('kaizenHabits', JSON.stringify(habits));
@@ -112,10 +151,12 @@ function loadFromCloud() {
             renderHabits(false); 
         } else {
             if(habits.length > 0) saveData(); 
+            else renderHabits(true);
         }
     });
 }
 
+// --- CORE HABIT FUNCTIONS ---
 
 function addHabit(name, desc, freq) {
     const id = Date.now().toString();
@@ -170,6 +211,7 @@ function changeMonth(habitId, offset) {
 }
 
 // --- RENDER FUNCTIONS ---
+
 function renderHabits(forceScrollToEnd = false) {
     const pageScrollY = window.scrollY;
     const scrollPositions = {};
@@ -187,7 +229,7 @@ function renderHabits(forceScrollToEnd = false) {
     if(habits.length === 0) { 
         list.innerHTML = `
             <div style="text-align:center; padding:80px; color:var(--ink-light); font-weight:300;">
-                ${currentUser ? 'Your cloud journey begins here.' : 'Data is saved locally. Sign in to sync.'}
+                ${currentUser ? 'Your cloud journey begins here.' : 'No habits yet.'}
             </div>`; 
         return; 
     }
@@ -242,14 +284,11 @@ function renderHabits(forceScrollToEnd = false) {
             const wrapper = document.getElementById(`scroll-wrapper-${h.id}`);
             if(wrapper) {
                 if (forceScrollToEnd) {
-                    // Explicit force (e.g. fresh reload)
                     setTimeout(() => wrapper.scrollLeft = wrapper.scrollWidth, 0);
                 } else if (scrollPositions[h.id] !== undefined) {
-                    // Restore previous position (e.g. during toggle)
                     wrapper.scrollLeft = scrollPositions[h.id];
                 } else {
-                    // Default to end if no history (e.g. first load from cloud or switch from calendar)
-                    setTimeout(() => wrapper.scrollLeft = wrapper.scrollWidth, 0);
+                     setTimeout(() => wrapper.scrollLeft = wrapper.scrollWidth, 0);
                 }
             }
         } else {
@@ -394,7 +433,6 @@ function exportData() {
     const a = document.createElement('a');
     a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(habits));
     a.download = "kaizen_habits.json"; a.click();
-    
 }
 function importData(input) {
     const f = input.files[0]; if(!f)return;
