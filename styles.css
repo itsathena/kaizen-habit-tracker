@@ -397,3 +397,52 @@ input:focus { border-bottom-color: var(--ink-black); }
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+.day-box {
+    width: var(--box-size);
+    height: var(--box-size);
+    background-color: var(--level-0);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: transform 0.1s;
+    user-select: none; 
+    -webkit-user-select: none;
+}
+
+.cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 4px;
+    background: var(--level-0);
+    transition: 0.2s;
+    user-select: none; 
+    -webkit-user-select: none;
+}
+
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--ink-faint);
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: var(--ink-black);
+    resize: vertical;
+    outline: none;
+    border-radius: 0;
+    line-height: 1.5;
+}
+
+textarea:focus {
+    border-color: var(--ink-black);
+}
+
+#dayStatusBtn.active {
+    background-color: var(--ink-black);
+    color: white;
+    border-color: var(--ink-black);
+}

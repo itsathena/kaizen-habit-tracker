@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kaizen | Habit Tracker</title>
-    <link rel="icon" type="image/png" href="favicon.svg" />
+    <link rel="icon" type="image/png" href="favicon.png" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;600&display=swap"
       rel="stylesheet"
@@ -16,9 +16,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   </head>
   <body>
-
     <div id="loading-screen">
-    <div class="spinner"></div>
+      <div class="spinner"></div>
     </div>
 
     <div id="globalTooltip"></div>
@@ -37,7 +36,7 @@
         </div>
       </header>
 
-      <div id="landing-view" class="landing-container">
+      <div id="landing-view" class="landing-container" style="display: none">
         <div class="landing-card">
           <h2>Welcome Back</h2>
           <p>Sync your progress across devices or track locally.</p>
@@ -105,49 +104,50 @@
             <option value="weekly">Weekly</option>
           </select>
         </div>
-        <div
-          style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 40px;
-          "
-        >
-          <button
-            id="resetBtn"
-            class="btn btn-sm btn-danger"
-            style="display: none"
-            onclick="openResetModal()"
-          >
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 40px;">
+          <button id="resetBtn" class="btn btn-sm btn-danger" style="display: none" onclick="openResetModal()">
             Reset History
           </button>
           <div style="display: flex; gap: 15px; margin-left: auto">
-            <button class="btn" style="border: none" onclick="closeModal()">
-              Cancel
-            </button>
+            <button class="btn" style="border: none" onclick="closeModal()">Cancel</button>
             <button class="btn" onclick="saveHabit()">Confirm</button>
           </div>
         </div>
       </div>
     </div>
 
+    <div id="dayModal" class="modal">
+        <div class="modal-content">
+            <h2 id="dayModalTitle" style="margin-bottom: 10px; font-size: 1.5rem">Date</h2>
+            <div id="dayModalSubtitle" style="color: var(--ink-medium); margin-bottom: 25px; font-size: 0.9rem;"></div>
+
+            <div class="form-group">
+                <label>Status</label>
+                <button id="dayStatusBtn" class="btn" style="width: 100%; text-align: left;" onclick="toggleDayStatus()">
+                    Mark as Done
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label>Accomplishment / Note</label>
+                <textarea id="dayNote" placeholder="What did you achieve today?" rows="4"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 30px;">
+                <button class="btn" style="border: none" onclick="closeDayModal()">Cancel</button>
+                <button class="btn" onclick="saveDayDetails()">Save</button>
+            </div>
+        </div>
+    </div>
+
     <div id="deleteModal" class="modal">
       <div class="modal-content" style="max-width: 400px">
         <h2 style="margin-bottom: 20px; font-size: 1.5rem">Remove Path?</h2>
-        <p
-          style="
-            margin-bottom: 30px;
-            color: var(--ink-medium);
-            line-height: 1.5;
-          "
-        >
-          Are you sure you want to remove this habit? This action cannot be
-          undone.
+        <p style="margin-bottom: 30px; color: var(--ink-medium); line-height: 1.5;">
+          Are you sure you want to remove this habit? This action cannot be undone.
         </p>
         <div style="display: flex; justify-content: flex-end; gap: 15px">
-          <button class="btn" style="border: none" onclick="closeDeleteModal()">
-            Cancel
-          </button>
+          <button class="btn" style="border: none" onclick="closeDeleteModal()">Cancel</button>
           <button class="btn" onclick="confirmDelete()">Remove</button>
         </div>
       </div>
@@ -156,20 +156,11 @@
     <div id="resetModal" class="modal modal-top">
       <div class="modal-content" style="max-width: 400px">
         <h2 style="margin-bottom: 20px; font-size: 1.5rem">Reset History?</h2>
-        <p
-          style="
-            margin-bottom: 30px;
-            color: var(--ink-medium);
-            line-height: 1.5;
-          "
-        >
-          This will permanently erase all tracking data for this habit. Are you
-          sure?
+        <p style="margin-bottom: 30px; color: var(--ink-medium); line-height: 1.5;">
+          This will permanently erase all tracking data for this habit. Are you sure?
         </p>
         <div style="display: flex; justify-content: flex-end; gap: 15px">
-          <button class="btn" style="border: none" onclick="closeResetModal()">
-            Cancel
-          </button>
+          <button class="btn" style="border: none" onclick="closeResetModal()">Cancel</button>
           <button class="btn btn-danger" onclick="confirmReset()">Reset</button>
         </div>
       </div>
