@@ -11,6 +11,7 @@
     />
     <link rel="stylesheet" href="styles.css" />
 
+    <script src="libs/DragDropTouch.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -77,7 +78,32 @@
               onchange="importData(this)"
             />
           </div>
-          <button class="btn" onclick="openModal()">+ New Habit</button>
+
+          <div style="display: flex; gap: 10px">
+            <!-- Converted to an icon button -->
+            <button
+              id="collapseAllBtn"
+              class="btn"
+              title="Collapse All"
+              onclick="toggleAllCollapse()"
+              style="
+                font-size: 1.1rem;
+                padding: 8px 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              ▼
+            </button>
+            <button
+              class="btn"
+              style="white-space: nowrap"
+              onclick="openModal()"
+            >
+              + New Habit
+            </button>
+          </div>
         </div>
 
         <div id="habitList" class="habit-list"></div>
