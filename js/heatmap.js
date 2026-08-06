@@ -3,7 +3,6 @@ function renderHeatmap(habitId, history, notes = {}) {
   const monthsContainer = document.getElementById(`months-${habitId}`);
   if (!grid || !monthsContainer) return;
 
-  // Reset content to prevent duplicates if called multiple times (though currently we wipe the whole list)
   grid.innerHTML = "";
   monthsContainer.innerHTML = "";
 

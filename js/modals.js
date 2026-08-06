@@ -153,9 +153,22 @@ function confirmReset() {
      closeResetModal(); closeModal(); 
 }
 
+// --- GLOBAL CLICKS ---
 window.onclick = e => { 
     if(modal && e.target == modal) closeModal(); 
     if(deleteModal && e.target == deleteModal) closeDeleteModal();
     if(resetModal && e.target == resetModal) closeResetModal();
     if(dayModal && e.target == dayModal) closeDayModal();
+    
+    // HIDE TOOLTIP ON MOBILE WHEN TAPPING OUTSIDE A BLOCK
+    if(tooltip && !e.target.classList.contains('day-box')) {
+        tooltip.style.display = 'none';
+    }
 };
+
+// HIDE TOOLTIP ON SCROLLING (When you move your hand away)
+window.addEventListener('touchmove', () => {
+    if (tooltip && tooltip.style.display === 'block') {
+        tooltip.style.display = 'none';
+    }
+}, { passive: true });
